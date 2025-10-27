@@ -1,0 +1,81 @@
+body {
+    /* টেলিগ্রামের থিম অনুযায়ী ব্যাকগ্রাউন্ড কালার সেট করা */
+    font-family: Arial, sans-serif;
+    background-color: var(--tg-theme-bg-color, #ffffff); 
+    color: var(--tg-theme-text-color, #000000); 
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.header {
+    margin-bottom: 30px;
+}
+
+/* স্কোর বড় এবং হাইলাইট করা হয়েছে */
+#score {
+    font-size: 4em;
+    margin: 0;
+    color: var(--tg-theme-button-color, #2481cc); 
+}
+
+/* এনার্জি বার ডিজাইন */
+.energy-bar {
+    width: 100%;
+    height: 15px;
+    background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+#energyLevel {
+    height: 100%;
+    background-color: #ff9900; /* Orange রং এনার্জির জন্য */
+    transition: width 0.3s;
+}
+
+.energy-text {
+    font-size: 0.9em;
+    margin-bottom: 40px;
+}
+
+/* ট্যাপ বোতামের স্টাইল */
+#tapButton {
+    background-color: var(--tg-theme-button-color, #2481cc);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    border: none;
+    padding: 20px;
+    border-radius: 50%; /* গোলাকার করা হয়েছে */
+    width: 180px;
+    height: 180px;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ট্যাপ করার সময় ছোট হবে */
+#tapButton:active {
+    transform: scale(0.95);
+}
+
+.tap-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 5px;
+}
+
