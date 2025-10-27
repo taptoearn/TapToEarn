@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TapToEarn Mini App</title>
+    <!-- CSS ফাইল লিঙ্ক করা হচ্ছে -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Telegram Web App SDK লিঙ্ক করা হচ্ছে (এটি টেলিগ্রামের জন্য আবশ্যক) -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- স্কোর ডিসপ্লে -->
+        <div class="header">
+            <!-- এখানে আপনার বর্তমান স্কোর দেখাবে -->
+            <h2 id="score">0 🪙</h2>
+            <p>আপনার রোজগার</p>
+        </div>
+
+        <!-- এনার্জি বার ডিসপ্লে -->
+        <div class="energy-bar">
+            <div id="energyLevel" style="width: 100%;"></div>
+        </div>
+        <!-- বর্তমান এনার্জি/মোট এনার্জি দেখাবে -->
+        <p class="energy-text" id="energyText">100 / 100</p>
+
+        <!-- মূল ট্যাপ বোতাম -->
+        <button id="tapButton">
+            <!-- tap-icon.png নামে একটি ছবি/আইকন এখানে ব্যবহার হবে -->
+            <img src="tap-icon.png" alt="Tap Here" class="tap-icon">
+            <p>ট্যাপ করুন!</p>
+        </button>
+
+        <!-- JavaScript ফাইল লিঙ্ক করা হচ্ছে (যা অ্যাপের লজিক চালাবে) -->
+        <script src="script.js"></script>
+    </div>
+</body>
+</html>
+
