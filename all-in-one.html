@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TapToEarn Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        /* --- Global Reset and Base Styles --- */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            color: #333;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* --- Header and Score --- */
+        .header {
+            margin-bottom: 25px;
+        }
+
+        #score {
+            font-size: 3rem;
+            color: #ffd700; /* Gold color */
+            margin: 0;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #777;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* --- Energy Bar --- */
+        .energy-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        #energyLevel {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ee5253); /* Red gradient for energy */
+            transition: width 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .energy-text {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* --- Tap Button & Emoji --- */
+        #tapButton {
+            background: linear-gradient(145deg, #ffd700, #ffc107); /* Gold gradient */
+            border: none;
+            border-radius: 50%; /* Make it perfectly round */
+            width: 200px; /* Large tap area for mobile */
+            height: 200px;
+            margin: 40px auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.4), 0 0 0 10px rgba(255, 215, 0, 0.2);
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+        }
+
+        #tapButton:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 10px rgba(255, 215, 0, 0.6);
+        }
+
+        .tap-icon-emoji {
+            font-size: 6rem; /* Make the emoji very large */
+            line-height: 1;
+            margin: 0;
+        }
+
+        #tapButton p {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        /* CSS for the Tap Effect */
+        .tap-effect {
+            position: absolute;
+            color: #fff;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            animation: floatUp 0.7s ease-out;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -100px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2 id="score">0 🪙</h2>
+            <p>আপনার রোজগার</p>
+        </div>
+
+        <div class="energy-bar">
+            <div id="energyLevel" style="width: 100%;"></div>
+        </div>
+        <p class="energy-text" id="energyText">100 / 100</p>
+
+        <button id="tapButton">
+            <span class="tap-icon-emoji">💰</span>
+            <p>ট্যাপ করুন!</p>
+        </button>
+    </div>
+
+    <script>
+        // --- গেম ভেরিয়েবল ---
+        let score = 0;
+        let maxEnergy = 100;
+        let currentEnergy = maxEnergy;
+        const tapCost = 1; // প্রতি ক্লিকে ১ এনার্জি খরচ হবে
+        const energyRegenRate = 5; // প্রতি সেকেন্ডে এনার্জি রিফিল রেট
+
+        // --- DOM এলিমেন্ট ---
+        const scoreDisplay = document.getElementById('score');
+        const tapButton = document.getElementById('tapButton');
+        const energyLevelBar = document.getElementById('energyLevel');
+        const energyText = document.getElementById('energyText');
+
+        // --- ফাংশন ---
+
+        /**
+         * স্কোর এবং এনার্জি আপডেট করে UI তে প্রদর্শন করে।
+         */
+        function updateUI() {
+            scoreDisplay.textContent = `${score} 🪙`;
+            energyText.textContent = `${currentEnergy} / ${maxEnergy}`;
+
+            const energyPercentage = (currentEnergy / maxEnergy) * 100;
+            energyLevelBar.style.width = `${energyPercentage}%`;
+
+            // এনার্জি কম থাকলে বাটনকে একটু কম উজ্জ্বল করা
+            if (currentEnergy === 0) {
+                tapButton.style.opacity = '0.7';
+                tapButton.style.cursor = 'default';
+            } else {
+                tapButton.style.opacity = '1';
+                tapButton.style.cursor = 'pointer';
+            }
+        }
+
+        /**
+         * ট্যাপ করার ঘটনা হ্যান্ডেল করে।
+         */
+        function handleTap(event) {
+            if (currentEnergy >= tapCost) {
+                score += 1; // স্কোর বাড়ান
+                currentEnergy -= tapCost; // এনার্জি কমান
+                
+                // ট্যাপ এফেক্ট দেখান
+                createTapEffect(event);
+
+            } else {
+                console.log("Energy depleted! Waiting for refill.");
+            }
+            updateUI();
+        }
+
+        /**
+         * এনার্জি অটোমেটিক রিফিল করার লুপ।
+         */
+        function energyRegenLoop() {
+            if (currentEnergy < maxEnergy) {
+                currentEnergy = Math.min(maxEnergy, currentEnergy + energyRegenRate);
+                updateUI();
+            }
+        }
+
+        /**
+         * ট্যাপ করার সময় ছোট টেক্সট এফেক্ট তৈরি করে।
+         * @param {Event} event - মাউস বা টাচ ইভেন্ট।
+         */
+        function createTapEffect(event) {
+            const effect = document.createElement('div');
+            effect.textContent = '+1';
+            effect.classList.add('tap-effect');
+
+            // ট্যাপ বাটন থেকে পজিশন গণনা করুন
+            const rect = tapButton.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            effect.style.left = `${x}px`;
+            effect.style.top = `${y}px`;
+
+            tapButton.appendChild(effect);
+
+            // অ্যানিমেশন শেষে এফেক্ট রিমুভ করুন
+            effect.addEventListener('animationend', () => {
+                effect.remove();
+            });
+        }
+
+        // --- ইভেন্ট লিসেনার এবং ইনিশিয়ালাইজেশন ---
+        tapButton.addEventListener('click', handleTap);
+        // মোবাইল টাচ ইভেন্টের জন্য
+        tapButton.addEventListener('touchstart', (e) => {
+            e.preventDefault(); 
+            // টাচ ইভেন্টকে ক্লিক ইভেন্টের মতো হ্যান্ডেল করুন (সঠিক পজিশন দিতে হবে)
+            handleTap({ clientX: e.touches[0].clientX, clientY: e.touches[0].clientY });
+        });
+
+        // প্রতি সেকেন্ডে এনার্জি রিফিল লুপ চালান
+        setInterval(energyRegenLoop, 1000); 
+
+        // প্রথমবার UI আপডেট
+        updateUI();
+
+    </script>
+</body>
+</html>
+
